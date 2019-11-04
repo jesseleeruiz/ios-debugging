@@ -16,37 +16,35 @@ class EntryDetailViewController: UIViewController {
     
     @IBAction func saveEntry(_ sender: Any) {
         
-        guard let title = titleTextField.text,
-            let bodyText = bodyTextView.text else { return }
-        
-        var mood: String!
-        
-        switch moodSegmentedControl.selectedSegmentIndex {
-        case 0:
-            mood = Mood.bad.rawValue
-        case 1:
-            mood = Mood.neutral.rawValue
-        case 2:
-            mood = Mood.good.rawValue
-        default:
-            break
+        if let title = titleTextField.text,
+            let bodyText = bodyTextView.text {
+            
+            var mood: String!
+            
+            switch moodSegmentedControl.selectedSegmentIndex {
+            case 0:
+                mood = Mood.bad.rawValue
+            case 1:
+                mood = Mood.neutral.rawValue
+            case 2:
+                mood = Mood.good.rawValue
+            default:
+                break
+            }
+            
+            if let entry = entry {
+                entryController?.update(entry: entry, title: title, bodyText: bodyText, mood: mood, context: CoreDataStack.shared.mainContext)
+            } else {
+                entryController?.createEntry(with: title, bodyText: bodyText, mood: mood)
+            }
         }
-        
-        if let entry = entry {
-            entryController?.update(entry: entry, title: title, bodyText: bodyText, mood: mood)
-        } else {
-            entryController?.createEntry(with: title, bodyText: bodyText, mood: mood)
-        }
-        self.navigationController?.popViewController(animated: true)
+        navigationController?.popViewController(animated: true)
     }
     
     private func updateViews() {
-        guard let entry = entry else {
-                title = "Create Entry"
-                return
-        }
+        guard isViewLoaded, let entry = entry else { return }
         
-        title = entry.title
+        title = entry.title ?? "Create Entry"
         titleTextField.text = entry.title
         bodyTextView.text = entry.bodyText
         
@@ -77,5 +75,5 @@ class EntryDetailViewController: UIViewController {
     @IBOutlet weak var moodSegmentedControl: UISegmentedControl!
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var bodyTextView: UITextView!
-
+    
 }
